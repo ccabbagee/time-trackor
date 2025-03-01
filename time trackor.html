@@ -1,0 +1,189 @@
+// 学习计时器代码
+// 将此代码添加到Notion页面的嵌入块中
+
+// HTML部分
+const html = `
+<div id="study-timer">
+  <h3>学习计时器</h3>
+  <div id="timer-display">00:00:00</div>
+  <div id="controls">
+    <button id="start-btn">⏱️ 开始</button>
+    <button id="stop-btn" disabled>⏹️ 结束</button>
+  </div>
+  <div id="results" style="display:none;">
+    <p>开始时间: <span id="start-time"></span></p>
+    <p>结束时间: <span id="end-time"></span></p>
+    <p>总时长: <span id="total-time"></span></p>
+    <label for="focus-rating">专注度 (1-10): </label>
+    <input type="number" id="focus-rating" min="1" max="10">
+    <label for="study-content">学习内容: </label>
+    <input type="text" id="study-content">
+    <button id="save-btn">保存到表格</button>
+  </div>
+</div>
+`;
+
+// CSS样式
+const styles = `
+<style>
+  #study-timer {
+    font-family: -apple-system, BlinkMacSystemFont, sans-serif;
+    padding: 20px;
+    border-radius: 8px;
+    background: #f7f6f3;
+    max-width: 500px;
+    margin: 0 auto;
+  }
+  #timer-display {
+    font-size: 32px;
+    font-weight: bold;
+    text-align: center;
+    margin: 20px 0;
+    font-family: monospace;
+  }
+  #controls {
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+    margin-bottom: 20px;
+  }
+  button {
+    padding: 8px 16px;
+    border-radius: 4px;
+    border: none;
+    cursor: pointer;
+    font-weight: 500;
+  }
+  #start-btn {
+    background: #2ecc71;
+    color: white;
+  }
+  #stop-btn {
+    background: #e74c3c;
+    color: white;
+  }
+  #save-btn {
+    background: #3498db;
+    color: white;
+    margin-top: 10px;
+  }
+  button:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+  #results {
+    margin-top: 20px;
+    padding-top: 20px;
+    border-top: 1px solid #ddd;
+  }
+  input {
+    margin: 8px 0;
+    padding: 6px;
+    width: 100%;
+    border-radius: 4px;
+    border: 1px solid #ddd;
+  }
+</style>
+`;
+
+// JavaScript功能
+const script = `
+<script>
+  let startTime = null;
+  let endTime = null;
+  let timerInterval = null;
+  let seconds = 0;
+  
+  const startBtn = document.getElementById('start-btn');
+  const stopBtn = document.getElementById('stop-btn');
+  const saveBtn = document.getElementById('save-btn');
+  const timerDisplay = document.getElementById('timer-display');
+  const resultsDiv = document.getElementById('results');
+  const startTimeSpan = document.getElementById('start-time');
+  const endTimeSpan = document.getElementById('end-time');
+  const totalTimeSpan = document.getElementById('total-time');
+  
+  // 格式化时间为HH:MM:SS
+  function formatTime(totalSeconds) {
+    const hours = Math.floor(totalSeconds / 3600);
+    const minutes = Math.floor((totalSeconds - (hours * 3600)) / 60);
+    const secs = totalSeconds % 60;
+    
+    return \`\${hours.toString().padStart(2, '0')}:\${minutes.toString().padStart(2, '0')}:\${secs.toString().padStart(2, '0')}\`;
+  }
+  
+  // 格式化日期时间
+  function formatDateTime(date) {
+    return date.toLocaleTimeString('zh-CN', {
+      hour: '2-digit',
+      minute: '2-digit'
+    });
+  }
+  
+  // 开始计时
+  startBtn.addEventListener('click', function() {
+    startTime = new Date();
+    startTimeSpan.textContent = formatDateTime(startTime);
+    
+    seconds = 0;
+    timerInterval = setInterval(function() {
+      seconds++;
+      timerDisplay.textContent = formatTime(seconds);
+    }, 1000);
+    
+    startBtn.disabled = true;
+    stopBtn.disabled = false;
+    resultsDiv.style.display = 'none';
+  });
+  
+  // 停止计时
+  stopBtn.addEventListener('click', function() {
+    clearInterval(timerInterval);
+    endTime = new Date();
+    
+    startBtn.disabled = false;
+    stopBtn.disabled = true;
+    
+    endTimeSpan.textContent = formatDateTime(endTime);
+    
+    // 计算总时长
+    const totalSeconds = Math.floor((endTime - startTime) / 1000);
+    totalTimeSpan.textContent = formatTime(totalSeconds);
+    
+    resultsDiv.style.display = 'block';
+  });
+  
+  // 保存结果
+  saveBtn.addEventListener('click', function() {
+    const focusRating = document.getElementById('focus-rating').value;
+    const studyContent = document.getElementById('study-content').value;
+    
+    if (!focusRating || !studyContent) {
+      alert('请填写专注度和学习内容');
+      return;
+    }
+    
+    // 这里可以添加保存到Notion表格的代码
+    // 由于Notion API限制，您需要通过其他方式实现与表格的集成
+    // 这里我们只是提示用户手动复制
+    
+    const resultText = \`
+    开始时间: \${startTimeSpan.textContent}
+    结束时间: \${endTimeSpan.textContent}
+    总时长: \${totalTimeSpan.textContent}
+    学习内容: \${studyContent}
+    专注度: \${focusRating}
+    \`;
+    
+    alert('请复制以下内容到您的Notion表格中:\n' + resultText);
+    
+    // 重置表单
+    document.getElementById('focus-rating').value = '';
+    document.getElementById('study-content').value = '';
+    resultsDiv.style.display = 'none';
+  });
+</script>
+`;
+
+// 组合所有内容
+document.write(html + styles + script);
